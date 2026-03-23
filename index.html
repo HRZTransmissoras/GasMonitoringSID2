@@ -325,7 +325,6 @@ function renderKPIs(ini,fim,g){
     var lds=getLaudos(r,ini,fim);if(!lds.length)return;
     var vs=lds.map(function(d){return d[g]||0;});
     var last=vs[vs.length-1];
-    var localMax=Math.max.apply(null,vs);if(localMax>maxV){maxV=localMax;maxR=r;}
     var hasD=vs.some(function(v){return v>=l;});
     var allD=vs.length>=3&&vs.every(function(v){return v>=l;});
     var ri3=vs.length>=3&&vs[vs.length-1]>vs[vs.length-2]&&vs[vs.length-2]>vs[vs.length-3];
@@ -396,14 +395,13 @@ function renderAlertas(ini,fim,g){
     var lds=getLaudos(r,ini,fim);if(!lds.length)return;
     var vs=lds.map(function(d){return d[g]||0;});
     var last=vs[vs.length-1];
-    var localMax=Math.max.apply(null,vs);if(localMax>maxV){maxV=localMax;maxR=r;}
     var hasD=vs.some(function(v){return v>=l;});
     var allD=vs.length>=3&&vs.every(function(v){return v>=l;});
     var ri3=vs.length>=3&&vs[vs.length-1]>vs[vs.length-2]&&vs[vs.length-2]>vs[vs.length-3];
     var delta=vs.length>=2?Math.round((vs[vs.length-1]-vs[vs.length-2])*10)/10:0;
     var wv=weR(vs,vs.reduce(function(a,b){return a+b;},0)/vs.length,l);
     if(allD&&g==='c2')items.push({p:0,dot:'var(--crit)',txt:'<strong>'+r+'</strong> &mdash; TODOS os '+vs.length+' laudos da janela acima de '+l+' ppm. <strong>Cl. 6.6.3 ativada.</strong> Remocao + causa raiz. Prazo 150 dias.',rule:'Clausula 6.6.3 SPA'});
-    else if(hasD)items.push({p:1,dot:'var(--crit)',txt:'<strong>'+r+'</strong> &mdash; '+vs.filter(function(v){return v>=l;}).length+' laudo(s) acima do LSC na janela.'+(g==='c2'?' Notificar WEG em 10 dias (Cl. 6.6(i)).':''),rule:'Regra WE 1 &mdash; desvio ativo'});
+    else if(hasD)items.push({p:1,dot:'var(--crit)',txt:'<strong>'+r+'</strong> &mdash; '+vs.filter(function(v){return v>=l;}).length+' laudo(s) acima do LSC ('+l+' ppm) na janela.'+(g==='c2'?' <strong>Notificar WEG em 10 dias (Cl. 6.6(i)).</strong>':' Limite IEEE C57.104 superado.'),rule:'Desvio ativo &mdash; LSC '+l+' ppm'});
     if(ri3&&!hasD)items.push({p:2,dot:'var(--warn)',txt:'<strong>'+r+'</strong> &mdash; Subindo ha 3 laudos. Ultimo: '+last+' ppm'+(delta>0?', +'+delta+' ppm no periodo':'')+'.',rule:'Regra WE 2 &mdash; tendencia crescente'});
     if(wv.length>0){var sk={};wv.forEach(function(w){sk[w.r]=w.d;});Object.keys(sk).forEach(function(k){if(parseInt(k)>1)items.push({p:3,dot:'var(--warn)',txt:'<strong>'+r+'</strong> &mdash; Regra WE '+k+': '+sk[k]+'.',rule:'Western Electric Rule '+k});});}
     if(!hasD&&last>=l*.5&&!ri3)items.push({p:4,dot:'var(--warn)',txt:'<strong>'+r+'</strong> &mdash; '+last+' ppm ('+Math.round(last/l*100)+'% do LSC). Zona de atencao.',rule:'Monitorar'});
